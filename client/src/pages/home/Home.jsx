@@ -2,29 +2,34 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
-import { Button, Typography } from 'antd';
+import { Button, Card, Col, Row, Tag, Typography } from 'antd';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { getListings } from '@/api/listing.api';
+import { getPosts } from '@/api/post.api';
 import ListingSection, { EmptyListings } from '@/components/listing/ListingSection';
+import { POST_CATEGORY, formatDate } from '@/utils/status';
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchHomeListings = async () => {
       try {
-        const [offers, rent, sale] = await Promise.all([
+        const [offers, rent, sale, latestPosts] = await Promise.all([
           getListings({ offer: true, limit: 4 }),
           getListings({ type: 'rent', limit: 4 }),
           getListings({ type: 'sale', limit: 4 }),
+          getPosts(3),
         ]);
         setOfferListings(offers);
         setRentListings(rent);
         setSaleListings(sale);
+        setPosts(latestPosts);
       } catch (error) {
         console.log(error);
       } finally {
@@ -92,6 +97,51 @@ export default function Home() {
               listings={saleListings}
             />
           </>
+        )}
+
+        {posts.length > 0 && (
+          <section className="mt-6">
+            <div className="my-3 flex items-center justify-between">
+              <Typography.Title level={3} className="mb-0!">
+                Latest insights
+              </Typography.Title>
+              <Link to="/blog">
+                <Button type="link" className="px-0!">
+                  All posts
+                </Button>
+              </Link>
+            </div>
+            <Row gutter={[20, 20]}>
+              {posts.map((post) => {
+                const category = POST_CATEGORY[post.category];
+                return (
+                  <Col xs={24} md={8} key={post._id}>
+                    <Link to={`/blog/${post._id}`}>
+                      <Card
+                        hoverable
+                        styles={{ body: { padding: 16 } }}
+                        cover={
+                          <img
+                            alt={post.title}
+                            src={post.cover}
+                            className="h-40 w-full object-cover"
+                          />
+                        }
+                      >
+                        <Tag color={category.color}>{category.label}</Tag>
+                        <Typography.Title level={5} className="mt-2! mb-1!" ellipsis={{ rows: 1 }}>
+                          {post.title}
+                        </Typography.Title>
+                        <Typography.Text type="secondary" className="text-xs!">
+                          {post.authorName} · {formatDate(post.createdAt)}
+                        </Typography.Text>
+                      </Card>
+                    </Link>
+                  </Col>
+                );
+              })}
+            </Row>
+          </section>
         )}
       </div>
     </div>

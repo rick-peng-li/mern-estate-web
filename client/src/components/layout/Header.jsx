@@ -2,8 +2,19 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Button, Dropdown, Input, Space } from 'antd';
-import { FaBars, FaHome, FaInfoCircle, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import {
+  FaBars,
+  FaBookOpen,
+  FaCalendarCheck,
+  FaChartLine,
+  FaHeart,
+  FaHome,
+  FaInfoCircle,
+  FaSignOutAlt,
+  FaUser,
+} from 'react-icons/fa';
 import { signOutUser } from '@/redux/user/userSlice';
+import NotificationBell from '@/components/layout/NotificationBell';
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
@@ -34,19 +45,33 @@ export default function Header() {
       icon: <FaInfoCircle />,
       label: <Link to="/about">About</Link>,
     },
-    currentUser
-      ? {
-          key: 'profile',
-          icon: <FaUser />,
-          label: <Link to="/profile">Profile</Link>,
-        }
-      : {
-          key: 'signin',
-          icon: <FaUser />,
-          label: <Link to="/sign-in">Sign In</Link>,
-        },
+    {
+      key: 'blog',
+      icon: <FaBookOpen />,
+      label: <Link to="/blog">Blog</Link>,
+    },
     ...(currentUser
       ? [
+          {
+            key: 'dashboard',
+            icon: <FaChartLine />,
+            label: <Link to="/dashboard">Dashboard</Link>,
+          },
+          {
+            key: 'favorites',
+            icon: <FaHeart />,
+            label: <Link to="/favorites">Favorites</Link>,
+          },
+          {
+            key: 'bookings',
+            icon: <FaCalendarCheck />,
+            label: <Link to="/bookings">Bookings</Link>,
+          },
+          {
+            key: 'profile',
+            icon: <FaUser />,
+            label: <Link to="/profile">Profile</Link>,
+          },
           { type: 'divider' },
           {
             key: 'signout',
@@ -55,7 +80,13 @@ export default function Header() {
             onClick: handleSignOut,
           },
         ]
-      : []),
+      : [
+          {
+            key: 'signin',
+            icon: <FaUser />,
+            label: <Link to="/sign-in">Sign In</Link>,
+          },
+        ]),
   ];
 
   return (
@@ -84,6 +115,12 @@ export default function Header() {
               Home
             </Button>
           </Link>
+          <Link to="/blog">
+            <Button type="text" icon={<FaBookOpen />}>
+              Blog
+            </Button>
+          </Link>
+          <NotificationBell />
           <Dropdown
             menu={{ items: menuItems }}
             placement="bottomRight"

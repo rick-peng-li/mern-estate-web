@@ -16,6 +16,9 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import { getListing } from '@/api/listing.api';
 import Contact from '@/components/listing/Contact';
+import ReviewSection from '@/components/listing/ReviewSection';
+import FavoriteButton from '@/components/favorite/FavoriteButton';
+import BookingModal from '@/components/booking/BookingModal';
 import { formatPrice } from '@/utils/format';
 
 export default function Listing() {
@@ -86,6 +89,10 @@ export default function Listing() {
         <FaShare className="text-slate-500" onClick={handleShare} />
       </div>
 
+      <div className="fixed top-[20%] right-[3%] z-10 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-slate-300 bg-white shadow-md">
+        <FavoriteButton listingId={listing._id} />
+      </div>
+
       <div className="mx-auto my-7 flex max-w-4xl flex-col gap-4 p-3">
         <Typography.Title level={2} className="mb-0!">
           {listing.name} - ${formatPrice(listing.offer ? listing.discountPrice : listing.regularPrice)}
@@ -128,15 +135,15 @@ export default function Listing() {
           </li>
         </ul>
         {currentUser && listing.userRef !== currentUser._id && !contact && (
-          <Button
-            type="primary"
-            onClick={() => setContact(true)}
-            className="w-fit!"
-          >
-            Contact landlord
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <BookingModal listing={listing} />
+            <Button onClick={() => setContact(true)} className="w-fit!">
+              Contact landlord
+            </Button>
+          </div>
         )}
         {contact && <Contact listing={listing} />}
+        <ReviewSection listing={listing} />
       </div>
     </main>
   );
